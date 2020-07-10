@@ -1,6 +1,8 @@
 # aws_iot_bridge
 A ROS Package to bridge the connection between AWS IOT Core and ROSBridge Websocket.
 
+![example](./resources/example.gif)
+
 # Installation
 Git clone repo into your catkin_ws/src.
 ```
