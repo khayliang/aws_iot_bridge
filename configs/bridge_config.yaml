@@ -1,0 +1,23 @@
+aws_iot_bridge:
+  # ROS topics to subscribe for publishing to IOT Core
+  subscribers:
+    -
+      topic: "/sub_1"
+      type: "std_msgs/String"
+    -
+      topic: "/sub_2"
+      type: "std_msgs/Int32"
+  # IOT Core topics to subscribe for publishing to ROS
+  publishers:
+    -
+      topic: "/pub_1"
+      type: "std_msgs/String"
+    -
+      topic: "/pub_2"
+      type: "std_msgs/Int32"
+  # ROS services to provide to IOT Core
+  services:
+    - 
+      topic: "/rosout/get_loggers"
+      type: "roscpp/GetLoggers"
+

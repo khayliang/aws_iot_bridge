@@ -1,0 +1,13 @@
+<launch>
+  <node name="aws_iot_bridge" pkg="aws_iot_bridge" type="aws_iot_bridge.py" /> 
+  
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" /> 
+
+  <rosparam file="$(find aws_iot_bridge)/configs/aws_config.yaml" />
+  <rosparam file="$(find aws_iot_bridge)/configs/bridge_config.yaml" />
+
+  <param name="aws_config/private_key" type="string" value="$(find aws_iot_bridge)/certs/d542d35b07-private.pem.key" />
+  <param name="aws_config/root_cert" type="string" value="$(find aws_iot_bridge)/certs/AmazonRootCA1.pem" />
+  <param name="aws_config/cert" type="string" value="$(find aws_iot_bridge)/certs/d542d35b07-certificate.pem.crt" />
+
+</launch>
