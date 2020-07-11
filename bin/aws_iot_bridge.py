@@ -1,10 +1,10 @@
 #!/home/kl/torch_gpu_ros/bin/python
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+from iot_core import IOTCoreClient
+
 import roslibpy
-
 import rospy
-
 import argparse
 import json
 import time
@@ -14,38 +14,8 @@ import logging
 class IOTBridge(object): 
     def __init__(self, args):
         self.bridge_params = rospy.get_param("/aws_iot_bridge")
-        aws_config = rospy.get_param("/aws_config")
-        
-        rospy.delete_param("/aws_config")
 
-        # Configure logging
-        logger = logging.getLogger("AWSIoTPythonSDK.core")
-        if args.verbose:
-            logger.setLevel(logging.DEBUG)
-        else:
-            logger.setLevel(logging.WARNING)
-
-        streamHandler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        streamHandler.setFormatter(formatter)
-        logger.addHandler(streamHandler)
-
-        self.device = AWSIoTMQTTClient(aws_config["client_id"])
-        self.device.configureEndpoint(aws_config["host"], aws_config["port"])
-
-        self.device.configureCredentials(aws_config["root_cert"],\
-        aws_config["private_key"], aws_config["cert"])
-
-        self.device.configureAutoReconnectBackoffTime(1, 32, 20)
-        self.device.configureOfflinePublishQueueing(-1) #Infinite offline Publish queueing
-        self.device.configureDrainingFrequency(2)  # Draining: 2 Hz
-        self.device.configureConnectDisconnectTimeout(10)  # 10 sec
-        self.device.configureMQTTOperationTimeout(10)  # 5 sec
-
-        if self.device.connect():
-            rospy.loginfo("Connected to device")
-        else:
-            rospy.logerr("Couldn't connect to device")
+        self.device = IOTCoreClient(args.verbose)
 
         self.ros = roslibpy.Ros(host="localhost", port=9090)
         self.ros.run()
