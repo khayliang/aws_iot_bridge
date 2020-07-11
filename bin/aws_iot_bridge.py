@@ -20,7 +20,11 @@ class IOTBridge(object):
 
         # Configure logging
         logger = logging.getLogger("AWSIoTPythonSDK.core")
-        logger.setLevel(logging.DEBUG)
+        if args.verbose:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.WARNING)
+
         streamHandler = logging.StreamHandler()
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         streamHandler.setFormatter(formatter)
@@ -41,7 +45,7 @@ class IOTBridge(object):
         if self.device.connect():
             rospy.loginfo("Connected to device")
         else:
-            rospy.loginfo("Couldn't connect to device")
+            rospy.logerr("Couldn't connect to device")
 
         self.ros = roslibpy.Ros(host="localhost", port=9090)
         self.ros.run()
@@ -50,7 +54,7 @@ class IOTBridge(object):
             if self.ros.is_connected:
                 rospy.loginfo("Connected to ROSBridge websocket.")
             else:
-                rospy.loginfo("Unable to connect to ROSBridge websocket. Check if you launched the ROSBridge node")
+                rospy.logerr("Unable to connect to ROSBridge websocket. Check if you launched the ROSBridge node")
                 
         self.ros.on_ready(check_if_connected)
 
@@ -116,7 +120,7 @@ class IOTBridge(object):
                 try:
                     outer_class_self.device.publish(self.topic + "/result", result_json, 1)
                 except:
-                    print("time out")
+                    rospy.logerr("AWS time out")
 
         callback = ServiceCall(topic, srv_type)  
 
@@ -127,7 +131,7 @@ class IOTBridge(object):
 def parse_args():
     
     parser = argparse.ArgumentParser()
-    #parser.add_argument("--video_path", type=str, default=None)
+    parser.add_argument("-v", "--verbose", action="store_true")
 
     return parser.parse_known_args()
             
@@ -136,13 +140,10 @@ def main(args):
     bridge = IOTBridge(args)
     rospy.init_node('aws_iot_bridge', anonymous=True)
 
-    def on_shutdown():
-        rospy.loginfo("Killing IOT Bridge")
-        bridge.terminate()
-
     while not rospy.is_shutdown():
         rospy.spin()
 
+    rospy.loginfo("Killing IOT Bridge")
     bridge.terminate()
 
 
