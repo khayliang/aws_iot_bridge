@@ -46,62 +46,6 @@ class IOTBridge(object):
         self.ros.terminate()
         self.device.disconnect()
 
-    def init_sub_bridge(self, topic, msg_type):
-
-        # Creating a nested class is necessary since device.publish is a function
-        outer_class_self = self
-        class SubscriberCallback(object):
-            def __init__(self, topic):
-                self.topic = topic
-            def __call__(self, message):
-                message_json = json.dumps(message)
-                outer_class_self.device.publish(self.topic, message_json, 1)
-
-        callback = SubscriberCallback(topic)
-
-        listener = roslibpy.Topic(self.ros, topic, msg_type)
-        listener.subscribe(callback)   
-
-    def init_pub_bridge(self, topic, msg_type):
-
-        outer_class_self = self
-        class PublisherCallback(object):
-            def __init__(self, topic, msg_type):
-                self.topic = topic
-                self.talker = roslibpy.Topic(outer_class_self.ros, topic, msg_type)
-
-            def __call__(self, client, userdata, message):
-                message_json = json.loads(message.payload)
-                self.talker.publish(roslibpy.Message(message_json)) 
-
-        callback = PublisherCallback(topic, msg_type)  
-
-        self.device.subscribe(topic, 1, callback)
-
-    def init_srv_bridge(self, topic, srv_type):
-
-        outer_class_self = self
-        class ServiceCall(object):
-            def __init__(self, topic, srv_type):
-                self.topic = topic
-                self.service = roslibpy.Service(outer_class_self.ros, topic, srv_type)
-            def __call__(self, client, userdata, message):
-                message_json = json.loads(message.payload)
-                request = roslibpy.ServiceRequest(message_json)
-                result = self.service.call(request)
-                print(result.data)
-                result_json = json.dumps(result.data)
-                try:
-                    outer_class_self.device.publish(self.topic + "/result", result_json, 1)
-                except:
-                    rospy.logerr("AWS time out")
-
-        callback = ServiceCall(topic, srv_type)  
-
-        self.device.subscribe(topic, 1, callback)
-
-
-
 def parse_args():
     
     parser = argparse.ArgumentParser()

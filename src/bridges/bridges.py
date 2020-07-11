@@ -3,7 +3,6 @@ import rospy
 import json
 from enum import Enum
 
-
 class BridgeTypes(Enum):
     SUBSCRIBER = 1
     PUBLISHER = 2
@@ -47,14 +46,12 @@ class ServiceBridge(BaseBridge):
         super().__init__(topic, srv_type, iot_client, ros_client)
         self.service = roslibpy.Service(ros_client, topic, srv_type)
     def __call__(self, client, userdata, message):
+
+        def callback(message):
+            result_json = json.dumps(message.data)
+            self.iot_client.publish(self.topic + "/result", result_json, 1)
+
         message_json = json.loads(message.payload)
         rospy.logdebug("Received: " + json.dumps(message_json) + " from AWS")
         request = roslibpy.ServiceRequest(message_json)
-        result = self.service.call(request)
-        my_json = {
-            "my_json": "something"
-        }
-        result_json = json.dumps(my_json)
-
-        self.iot_client.publish(self.topic + "/result", result_json, 1)
-
+        result = self.service.call(request, callback)
