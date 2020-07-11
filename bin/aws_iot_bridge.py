@@ -2,6 +2,7 @@
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from iot_core import IOTCoreClient
+import bridges
 
 import roslibpy
 import rospy
@@ -29,13 +30,16 @@ class IOTBridge(object):
         self.ros.on_ready(check_if_connected)
 
         for subscriber in self.bridge_params["subscribers"]:
-            self.init_sub_bridge(subscriber["topic"], subscriber["type"])  
+            bridges.bridge_factory(subscriber["topic"], subscriber["type"],\
+                self.device, self.ros, bridges.BridgeTypes.SUBSCRIBER)
 
         for publisher in self.bridge_params["publishers"]:
-            self.init_pub_bridge(publisher["topic"], publisher["type"])
+            bridges.bridge_factory(publisher["topic"], publisher["type"],\
+                self.device, self.ros, bridges.BridgeTypes.PUBLISHER)
 
         for service in self.bridge_params["services"]:
-            self.init_srv_bridge(service["topic"], service["type"])
+            bridges.bridge_factory(service["topic"], service["type"],\
+                self.device, self.ros, bridges.BridgeTypes.SERVICE)
 
     def terminate(self):
         rospy.loginfo("Terminating ROSBridge and IOT Core connection")

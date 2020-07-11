@@ -25,6 +25,10 @@ class IOTCoreClient(AWSIoTMQTTClient, AWSIoTMQTTShadowClient):
 
         super().configureCredentials(aws_config["root_cert"],\
         aws_config["private_key"], aws_config["cert"])
+
+        super().configureAutoReconnectBackoffTime(1, 32, 20)
+        super().configureOfflinePublishQueueing(-1) #Infinite offline Publish queueing
+        super().configureDrainingFrequency(2)  # Draining: 2 Hz
         
         super().configureConnectDisconnectTimeout(10)  # 10 sec
         super().configureMQTTOperationTimeout(10)  # 5 sec
