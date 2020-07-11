@@ -1,6 +1,5 @@
 #!/home/kl/torch_gpu_ros/bin/python
 
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from iot_core import IOTCoreClient
 import bridges
 
