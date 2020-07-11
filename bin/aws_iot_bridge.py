@@ -63,8 +63,6 @@ def main(args):
     rospy.loginfo("Killing IOT Bridge")
     bridge.terminate()
 
-
-
 if __name__=="__main__":
     args, unknown = parse_args()
     main(args)
