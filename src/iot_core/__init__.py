@@ -4,7 +4,7 @@ import logging
 
 __all__ = ['IOTCoreClient']
 
-class IOTCoreClient(AWSIoTMQTTClient, AWSIoTMQTTShadowClient):
+class IOTCoreClient(AWSIoTMQTTShadowClient):
     def __init__(self, verbosity):
         aws_config = rospy.get_param("/aws_config")
 
@@ -21,19 +21,20 @@ class IOTCoreClient(AWSIoTMQTTClient, AWSIoTMQTTShadowClient):
         logger.addHandler(streamHandler)
 
         super().__init__(aws_config["client_id"])
-        super().configureEndpoint(aws_config["host"], aws_config["port"])
+        self.configureEndpoint(aws_config["host"], aws_config["port"])
 
-        super().configureCredentials(aws_config["root_cert"],\
+        self.configureCredentials(aws_config["root_cert"],\
         aws_config["private_key"], aws_config["cert"])
 
-        super().configureAutoReconnectBackoffTime(1, 32, 20)
-        super().configureOfflinePublishQueueing(-1) #Infinite offline Publish queueing
-        super().configureDrainingFrequency(2)  # Draining: 2 Hz
+        self.configureAutoReconnectBackoffTime(1, 32, 20)
         
-        super().configureConnectDisconnectTimeout(10)  # 10 sec
-        super().configureMQTTOperationTimeout(10)  # 5 sec
+        self.configureConnectDisconnectTimeout(10)  # 10 sec
+        self.configureMQTTOperationTimeout(10)  # 5 sec
 
-        if super().connect():
+        if self.connect():
             rospy.loginfo("Connected to device")
         else:
             rospy.logerr("Couldn't connect to device")
+
+        self.device = self.getMQTTConnection()
+        self.device_shadow = self.createShadowHandlerWithName("CourtRobot", True)
