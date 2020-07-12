@@ -45,8 +45,8 @@ class ServiceBridge(BaseBridge):
     def __init__(self, topic, srv_type, iot_client, ros_client):
         super().__init__(topic, srv_type, iot_client, ros_client)
         self.service = roslibpy.Service(ros_client, topic, srv_type)
-    def __call__(self, client, userdata, message):
 
+    def __call__(self, client, userdata, message):
         def callback(message):
             result_json = json.dumps(message.data)
             self.iot_client.publish(self.topic + "/result", result_json, 1)
