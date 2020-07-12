@@ -15,7 +15,9 @@ class IOTBridge(object):
     def __init__(self, args):
         self.bridge_params = rospy.get_param("/aws_iot_bridge")
 
-        self.device = IOTCoreClient(args.verbose)
+        client = IOTCoreClient(args.verbose)
+        self.device = client.device
+        self.device_shadow = client.device_shadow
 
         self.ros = roslibpy.Ros(host="localhost", port=9090)
         self.ros.run()
@@ -27,6 +29,17 @@ class IOTBridge(object):
                 rospy.logerr("Unable to connect to ROSBridge websocket. Check if you launched the ROSBridge node")
                 
         self.ros.on_ready(check_if_connected)
+
+        state = {"state": {"reported": self.bridge_params}}
+        
+        def customShadowCallback_Update(payload, responseStatus, token):
+            # payload is a JSON string ready to be parsed using json.loads(...)
+            # in both Py2.x and Py3.x
+            print(responseStatus)
+            payloadDict = json.loads(payload)
+            print(payloadDict)
+
+        self.device_shadow.shadowUpdate(json.dumps(state), customShadowCallback_Update, 10)
 
         for subscriber in self.bridge_params["subscribers"]:
             bridges.bridge_factory(subscriber["topic"], subscriber["type"],\
