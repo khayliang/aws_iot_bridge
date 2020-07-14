@@ -1,4 +1,5 @@
 aws_config:
   client_id: "KL-Computer"
   host: "a17t8rhn8oueg6-ats.iot.us-east-1.amazonaws.com"
-  port: 8883
+  port: 443
+  websocket: true

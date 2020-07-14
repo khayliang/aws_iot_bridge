@@ -20,7 +20,7 @@ class IOTCoreClient(AWSIoTMQTTShadowClient):
         streamHandler.setFormatter(formatter)
         logger.addHandler(streamHandler)
 
-        super().__init__(aws_config["client_id"])
+        super().__init__(aws_config["client_id"], useWebsocket=aws_config["websocket"])
         self.configureEndpoint(aws_config["host"], aws_config["port"])
 
         self.configureCredentials(aws_config["root_cert"],\
